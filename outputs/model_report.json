@@ -4,6 +4,22 @@
   "base_rate": 0.1139,
   "seed": 20260803,
   "cv_folds": 5,
+  "leakage_experiment": {
+    "logistic": {
+      "auc_random_split": 0.6658,
+      "auc_random_split_sd": 0.0061,
+      "auc_patient_grouped": 0.665,
+      "auc_patient_grouped_sd": 0.008,
+      "inflation": 0.0008
+    },
+    "gbm": {
+      "auc_random_split": 0.679,
+      "auc_random_split_sd": 0.0052,
+      "auc_patient_grouped": 0.6767,
+      "auc_patient_grouped_sd": 0.0068,
+      "inflation": 0.0023
+    }
+  },
   "holdout_auc": {
     "logistic": 0.6495,
     "gbm": 0.6635
