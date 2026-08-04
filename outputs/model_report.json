@@ -1,0 +1,11 @@
+{
+  "encounters": 99343,
+  "patients": 69990,
+  "base_rate": 0.1139,
+  "seed": 20260803,
+  "cv_folds": 5,
+  "holdout_auc": {
+    "logistic": 0.6495,
+    "gbm": 0.6635
+  }
+}

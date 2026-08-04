@@ -1,0 +1,4 @@
+risk_tier,patients,pct_of_list,mean_predicted_risk_pct,observed_readmit_pct,readmissions,pct_of_all_readmissions
+High - call before discharge,3945,20.0,21.6,20.9,824,37.7
+Medium - post-discharge follow-up,5916,30.0,12.0,12.0,708,32.4
+Low - standard discharge,9859,50.0,6.7,6.6,653,29.9

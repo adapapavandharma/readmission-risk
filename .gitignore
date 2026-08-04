@@ -1,0 +1,12 @@
+# UCI dataset — fetched by src/download.py, not committed
+data/external/
+data/interim/
+data/registry.db
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db

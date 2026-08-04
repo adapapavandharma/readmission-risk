@@ -1,0 +1,280 @@
+{
+  "holdout_encounters": 19720,
+  "holdout_patients": 13970,
+  "base_rate": 0.1108,
+  "models": {
+    "p_gbm": {
+      "label": "Gradient boosting",
+      "roc_auc": 0.6635,
+      "pr_auc": 0.2185,
+      "pr_auc_over_base": 1.97,
+      "calibration": {
+        "brier": 0.0943,
+        "calibration_slope": 0.995,
+        "calibration_intercept": -0.022,
+        "mean_predicted": 0.1129,
+        "observed_rate": 0.1108
+      },
+      "lift_table": [
+        {
+          "top_k_pct": 5.0,
+          "patients_flagged": 986,
+          "readmissions_caught": 298,
+          "recall_pct": 13.6,
+          "precision_pct": 30.2,
+          "lift": 2.73,
+          "number_needed_to_screen": 3.3
+        },
+        {
+          "top_k_pct": 10.0,
+          "patients_flagged": 1972,
+          "readmissions_caught": 488,
+          "recall_pct": 22.3,
+          "precision_pct": 24.7,
+          "lift": 2.23,
+          "number_needed_to_screen": 4.0
+        },
+        {
+          "top_k_pct": 15.0,
+          "patients_flagged": 2958,
+          "readmissions_caught": 670,
+          "recall_pct": 30.7,
+          "precision_pct": 22.7,
+          "lift": 2.04,
+          "number_needed_to_screen": 4.4
+        },
+        {
+          "top_k_pct": 20.0,
+          "patients_flagged": 3944,
+          "readmissions_caught": 824,
+          "recall_pct": 37.7,
+          "precision_pct": 20.9,
+          "lift": 1.89,
+          "number_needed_to_screen": 4.8
+        },
+        {
+          "top_k_pct": 25.0,
+          "patients_flagged": 4930,
+          "readmissions_caught": 980,
+          "recall_pct": 44.9,
+          "precision_pct": 19.9,
+          "lift": 1.79,
+          "number_needed_to_screen": 5.0
+        },
+        {
+          "top_k_pct": 30.0,
+          "patients_flagged": 5916,
+          "readmissions_caught": 1119,
+          "recall_pct": 51.2,
+          "precision_pct": 18.9,
+          "lift": 1.71,
+          "number_needed_to_screen": 5.3
+        },
+        {
+          "top_k_pct": 40.0,
+          "patients_flagged": 7888,
+          "readmissions_caught": 1333,
+          "recall_pct": 61.0,
+          "precision_pct": 16.9,
+          "lift": 1.53,
+          "number_needed_to_screen": 5.9
+        },
+        {
+          "top_k_pct": 50.0,
+          "patients_flagged": 9860,
+          "readmissions_caught": 1532,
+          "recall_pct": 70.1,
+          "precision_pct": 15.5,
+          "lift": 1.4,
+          "number_needed_to_screen": 6.4
+        }
+      ]
+    },
+    "p_logistic": {
+      "label": "Logistic regression",
+      "roc_auc": 0.6495,
+      "pr_auc": 0.1929,
+      "pr_auc_over_base": 1.74,
+      "calibration": {
+        "brier": 0.22654,
+        "calibration_slope": 0.844,
+        "calibration_intercept": -2.074,
+        "mean_predicted": 0.4632,
+        "observed_rate": 0.1108
+      },
+      "lift_table": [
+        {
+          "top_k_pct": 5.0,
+          "patients_flagged": 986,
+          "readmissions_caught": 257,
+          "recall_pct": 11.8,
+          "precision_pct": 26.1,
+          "lift": 2.35,
+          "number_needed_to_screen": 3.8
+        },
+        {
+          "top_k_pct": 10.0,
+          "patients_flagged": 1972,
+          "readmissions_caught": 463,
+          "recall_pct": 21.2,
+          "precision_pct": 23.5,
+          "lift": 2.12,
+          "number_needed_to_screen": 4.3
+        },
+        {
+          "top_k_pct": 15.0,
+          "patients_flagged": 2958,
+          "readmissions_caught": 633,
+          "recall_pct": 29.0,
+          "precision_pct": 21.4,
+          "lift": 1.93,
+          "number_needed_to_screen": 4.7
+        },
+        {
+          "top_k_pct": 20.0,
+          "patients_flagged": 3944,
+          "readmissions_caught": 793,
+          "recall_pct": 36.3,
+          "precision_pct": 20.1,
+          "lift": 1.81,
+          "number_needed_to_screen": 5.0
+        },
+        {
+          "top_k_pct": 25.0,
+          "patients_flagged": 4930,
+          "readmissions_caught": 923,
+          "recall_pct": 42.2,
+          "precision_pct": 18.7,
+          "lift": 1.69,
+          "number_needed_to_screen": 5.3
+        },
+        {
+          "top_k_pct": 30.0,
+          "patients_flagged": 5916,
+          "readmissions_caught": 1042,
+          "recall_pct": 47.7,
+          "precision_pct": 17.6,
+          "lift": 1.59,
+          "number_needed_to_screen": 5.7
+        },
+        {
+          "top_k_pct": 40.0,
+          "patients_flagged": 7888,
+          "readmissions_caught": 1289,
+          "recall_pct": 59.0,
+          "precision_pct": 16.3,
+          "lift": 1.47,
+          "number_needed_to_screen": 6.1
+        },
+        {
+          "top_k_pct": 50.0,
+          "patients_flagged": 9860,
+          "readmissions_caught": 1501,
+          "recall_pct": 68.7,
+          "precision_pct": 15.2,
+          "lift": 1.37,
+          "number_needed_to_screen": 6.6
+        }
+      ]
+    },
+    "rule_prior_inpatient": {
+      "label": "Rule: prior inpatient count",
+      "roc_auc": 0.5963,
+      "pr_auc": 0.1606,
+      "pr_auc_over_base": 1.45,
+      "lift_table": [
+        {
+          "top_k_pct": 5.0,
+          "patients_flagged": 986,
+          "readmissions_caught": 244,
+          "recall_pct": 11.2,
+          "precision_pct": 24.7,
+          "lift": 2.23,
+          "number_needed_to_screen": 4.0
+        },
+        {
+          "top_k_pct": 10.0,
+          "patients_flagged": 1972,
+          "readmissions_caught": 425,
+          "recall_pct": 19.5,
+          "precision_pct": 21.6,
+          "lift": 1.95,
+          "number_needed_to_screen": 4.6
+        },
+        {
+          "top_k_pct": 15.0,
+          "patients_flagged": 2958,
+          "readmissions_caught": 575,
+          "recall_pct": 26.3,
+          "precision_pct": 19.4,
+          "lift": 1.75,
+          "number_needed_to_screen": 5.1
+        },
+        {
+          "top_k_pct": 20.0,
+          "patients_flagged": 3944,
+          "readmissions_caught": 703,
+          "recall_pct": 32.2,
+          "precision_pct": 17.8,
+          "lift": 1.61,
+          "number_needed_to_screen": 5.6
+        },
+        {
+          "top_k_pct": 25.0,
+          "patients_flagged": 4930,
+          "readmissions_caught": 847,
+          "recall_pct": 38.8,
+          "precision_pct": 17.2,
+          "lift": 1.55,
+          "number_needed_to_screen": 5.8
+        },
+        {
+          "top_k_pct": 30.0,
+          "patients_flagged": 5916,
+          "readmissions_caught": 987,
+          "recall_pct": 45.2,
+          "precision_pct": 16.7,
+          "lift": 1.51,
+          "number_needed_to_screen": 6.0
+        },
+        {
+          "top_k_pct": 40.0,
+          "patients_flagged": 7888,
+          "readmissions_caught": 1166,
+          "recall_pct": 53.4,
+          "precision_pct": 14.8,
+          "lift": 1.33,
+          "number_needed_to_screen": 6.8
+        },
+        {
+          "top_k_pct": 50.0,
+          "patients_flagged": 9860,
+          "readmissions_caught": 1351,
+          "recall_pct": 61.8,
+          "precision_pct": 13.7,
+          "lift": 1.24,
+          "number_needed_to_screen": 7.3
+        }
+      ]
+    }
+  },
+  "recalibration": {
+    "method": "isotonic, fitted on half the hold-out patients",
+    "before": {
+      "brier": 0.0942,
+      "calibration_slope": 0.906,
+      "calibration_intercept": -0.035,
+      "mean_predicted": 0.1129,
+      "observed_rate": 0.1095
+    },
+    "after": {
+      "brier": 0.0945,
+      "calibration_slope": 0.782,
+      "calibration_intercept": -0.028,
+      "mean_predicted": 0.1121,
+      "observed_rate": 0.1095
+    },
+    "auc_before": 0.6491,
+    "auc_after": 0.6483
+  }
+}
