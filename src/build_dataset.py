@@ -32,6 +32,7 @@ Rates", BioMed Research International, 2014.
 
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 
@@ -82,22 +83,34 @@ def icd9_group(code: object) -> str:
         v = float(s)
     except ValueError:
         return "Other"
+    # 'nan' and 'inf' parse as floats but are not codes; int() on either raises.
+    if not math.isfinite(v):
+        return "Other"
 
-    if 250 <= v < 251:
+    # Compare on the CHAPTER, i.e. the integer part, not the decimal code.
+    # ICD-9 chapters are stated as whole-number ranges but the codes carry
+    # subdivisions: 459.9 is circulatory, yet `390 <= 459.9 <= 459` is False.
+    # Testing the float sent every x.9 code at the top of a chapter to Other —
+    # 459.9, 519.9, 579.9, 629.9, 739.9, 239.9 and the entire 999.x block
+    # (complications of medical care, which is exactly the kind of diagnosis a
+    # readmission model should be able to see).
+    chapter = int(v)
+
+    if chapter == 250:
         return "Diabetes"
-    if 390 <= v <= 459 or int(v) == 785:
+    if 390 <= chapter <= 459 or chapter == 785:
         return "Circulatory"
-    if 460 <= v <= 519 or int(v) == 786:
+    if 460 <= chapter <= 519 or chapter == 786:
         return "Respiratory"
-    if 520 <= v <= 579 or int(v) == 787:
+    if 520 <= chapter <= 579 or chapter == 787:
         return "Digestive"
-    if 800 <= v <= 999:
+    if 800 <= chapter <= 999:
         return "Injury"
-    if 710 <= v <= 739:
+    if 710 <= chapter <= 739:
         return "Musculoskeletal"
-    if 580 <= v <= 629 or int(v) == 788:
+    if 580 <= chapter <= 629 or chapter == 788:
         return "Genitourinary"
-    if 140 <= v <= 239:
+    if 140 <= chapter <= 239:
         return "Neoplasms"
     return "Other"
 

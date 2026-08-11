@@ -1,5 +1,7 @@
 # 30-Day Readmission Risk — An Honest Evaluation
 
+[![tests](https://github.com/adapapavandharma/readmission-risk/actions/workflows/ci.yml/badge.svg)](https://github.com/adapapavandharma/readmission-risk/actions/workflows/ci.yml) [![python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/) [![licence MIT](https://img.shields.io/badge/licence-MIT-green.svg)](LICENSE)
+
 A 30-day hospital readmission model built on **99,343 real inpatient encounters** from the
 UCI *Diabetes 130-US Hospitals* dataset (130 hospitals, 1999–2008), with a genuine
 readmission label rather than a simulated one.
@@ -155,6 +157,21 @@ python src/registry.py        # tiered risk board -> SQLite
 ```
 
 Deterministic given `SEED = 20260803`.
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -q
+```
+
+The suite is hermetic — it builds every fixture in code and never touches
+`data/external/`, `data/interim/` or the network, so it runs on a clean checkout
+and in CI. It covers the ICD-9 grouping against an independently transcribed
+Strack table, the cleaning rules for all three traps, the lift/NNS table, the
+calibration slope and intercept, the decision curve, the leakage experiment and
+the SQL risk board. A handful of tests are marked `xfail` with a written reason:
+those are known defects, kept visible rather than deleted.
 
 ## Data source
 

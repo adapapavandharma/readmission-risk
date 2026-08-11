@@ -30,14 +30,21 @@ OUTREACH_CAPACITY_PER_DAY = 24          # 20% of discharges
 SCHEMA = """
 DROP TABLE IF EXISTS risk_score;
 CREATE TABLE risk_score (
+    -- One row per ENCOUNTER, not per patient. A patient can be scored several
+    -- times, and two of their encounters can land on the same predicted risk:
+    -- a tree ensemble's output is piecewise constant, and one patient's
+    -- encounters share most of their features, so collisions are likelier than
+    -- chance. Keying on (patient_nbr, predicted_risk) therefore aborts the
+    -- whole load with an IntegrityError as soon as that happens.
+    score_id         INTEGER PRIMARY KEY AUTOINCREMENT,
     patient_nbr      INTEGER NOT NULL,
     predicted_risk   REAL    NOT NULL,
     risk_tier        TEXT    NOT NULL,
     risk_percentile  REAL    NOT NULL,
-    actual_readmit   INTEGER,           -- present only in back-test data
-    PRIMARY KEY (patient_nbr, predicted_risk)
+    actual_readmit   INTEGER            -- present only in back-test data
 );
-CREATE INDEX idx_risk_tier ON risk_score(risk_tier);
+CREATE INDEX idx_risk_tier    ON risk_score(risk_tier);
+CREATE INDEX idx_risk_patient ON risk_score(patient_nbr);
 """
 
 TIER_QUERY = """
