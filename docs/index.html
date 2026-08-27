@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>30-Day Readmission Risk — an honest evaluation</title>
+<meta name="description" content="30-day readmission over 99,343 real inpatient encounters. Why AUC 0.66 is still useful, why the logistic model's probabilities are unusable, and what a care-management team actually gets.">
+<style>
+  :root{--bg:#f6f7f9;--panel:#fff;--ink:#14181f;--muted:#5b6472;--line:#e2e6ec;
+        --accent:#1f5f8b;--warn:#b5651d;--good:#1e7b52;--bad:#a4303f;--grid:#eef1f5;}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#11151a;--panel:#171d24;--ink:#e8ecf1;--muted:#9aa6b4;--line:#26303a;
+    --accent:#5fa8d8;--warn:#e0a15e;--good:#57c493;--bad:#e0798a;--grid:#212b34;}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
+  header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:22px}
+  h1{margin:0 0 6px;font-size:26px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  .src{color:var(--muted);font-size:12.5px;margin-top:10px}.src a{color:var(--accent)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:18px}
+  .card h2{margin:0 0 3px;font-size:15.5px}
+  .card .cap{color:var(--muted);font-size:12.5px;margin:0 0 14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:880px){.grid2{grid-template-columns:1fr}}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:18px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+  .kpi .label{font-size:11.5px;text-transform:uppercase;letter-spacing:.055em;color:var(--muted)}
+  .kpi .val{font-size:28px;font-weight:650;margin:5px 0 2px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .kpi .note{font-size:12.5px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.hl td{background:rgba(31,95,139,.09);font-weight:600}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600}
+  .ok{background:rgba(30,123,82,.13);color:var(--good)}
+  .no{background:rgba(164,48,63,.13);color:var(--bad)}
+  .wk{background:rgba(181,101,29,.14);color:var(--warn)}
+  .callout{border-left:3px solid var(--accent);background:var(--panel);padding:13px 16px;
+           border-radius:0 8px 8px 0;margin-bottom:18px;font-size:13.5px}
+  .callout b{color:var(--accent)}
+  .callout.warn{border-left-color:var(--warn)}.callout.warn b{color:var(--warn)}
+  .callout.red{border-left-color:var(--bad)}.callout.red b{color:var(--bad)}
+  .barwrap{background:var(--grid);border-radius:5px;overflow:hidden;display:block;min-width:60px}
+  .bar{height:10px;border-radius:5px;display:block}
+  footer{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  footer a{color:var(--accent)}
+  .scroll{overflow-x:auto}
+  .mid{font-size:12px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+  svg{display:block;max-width:100%;height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>30-Day Readmission Risk</h1>
+  <p class="sub">An honest evaluation — and an argument that AUC is the wrong thing to judge this on.</p>
+  <p class="src">99,343 real inpatient encounters across 69,990 patients, UCI <i>Diabetes 130-US Hospitals</i>
+     (130 hospitals, 1999–2008) · hold-out 19,720 encounters / 13,970 patients · base rate 11.08% ·
+     <a href="https://github.com/adapapavandharma/readmission-risk" target="_blank" rel="noopener">readmission-risk</a></p>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><div class="label">ROC AUC</div><div class="val">0.664</div><div class="note">gradient boosting, hold-out</div></div>
+  <div class="kpi"><div class="label">Top 20% of the list</div><div class="val">37.7%</div><div class="note">of all readmissions caught</div></div>
+  <div class="kpi"><div class="label">Enrichment there</div><div class="val">1.89×</div><div class="note">20.9% vs 11.08% base rate</div></div>
+  <div class="kpi"><div class="label">Number needed to screen</div><div class="val">4.8</div><div class="note">to find one readmission</div></div>
+</div>
+
+<div class="callout">
+  <b>0.664 is a mediocre-sounding number, and it is the wrong measure.</b>
+  No care-management team consumes a probability. They have capacity to work some number of patients a
+  week, so the question that matters is: if we work the top 20% of the list, what do we get? The answer is
+  <b>37.7% of all readmissions at 1.89× enrichment</b> — and that is a useful list regardless of what the
+  AUC says.
+</div>
+
+<div class="card">
+  <h2>What a team actually gets at each list depth</h2>
+  <p class="cap">Gradient boosting on the hold-out. Recall is what you catch; precision is how often you are right; NNS is how many patients you review to find one readmission.</p>
+  <div class="scroll"><table id="lift"><thead><tr>
+    <th class="num">List depth</th><th class="num">Patients flagged</th><th class="num">Readmissions caught</th>
+    <th class="num">Recall</th><th class="num">Precision</th><th class="num">Lift</th><th class="num">NNS</th><th style="width:18%"></th>
+  </tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="card">
+  <h2>Three models, including a baseline worth beating</h2>
+  <p class="cap">A model is only interesting relative to the simplest thing that could work. Here that is a rule: rank by prior inpatient visit count.</p>
+  <div class="scroll"><table id="models"><thead><tr>
+    <th>Model</th><th class="num">ROC AUC</th><th class="num">PR AUC</th><th class="num">vs base rate</th>
+    <th class="num">Recall @20%</th><th>Calibration</th>
+  </tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="callout red">
+  <b>The logistic model's AUC is fine and its probabilities are useless.</b>
+  It ranks almost as well as the gradient boosting model — AUC 0.650 against 0.664 — but its mean
+  predicted risk is <b>46.3%</b> against an observed rate of <b>11.1%</b>, with a Brier score of 0.227
+  against 0.094. It is off by a factor of four in absolute terms. If anyone took those numbers as
+  probabilities and told a patient "you have a 46% chance of readmission", they would be badly wrong while
+  the ranking still looked healthy. Discrimination and calibration are different properties, and only one
+  of them shows up in an AUC.
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <h2>Calibration — predicted against observed</h2>
+    <p class="cap">A calibration slope of 1.0 and intercept of 0.0 is perfect. Brier is lower-is-better.</p>
+    <div id="calib"></div>
+  </div>
+  <div class="card">
+    <h2>Leakage test: does patient grouping matter?</h2>
+    <p class="cap">23.3% of patients appear in more than one encounter. Splitting randomly lets the same patient sit in train and test.</p>
+    <div id="leak"></div>
+  </div>
+</div>
+
+<div class="callout warn">
+  <b>Two things I expected to matter that did not, reported anyway.</b><br><br>
+  <b>1. Patient-grouped splitting barely changed anything.</b> Random-split AUC 0.679 against
+  patient-grouped 0.677 for the gradient boosting model — an inflation of <b>0.0023</b>. Grouping on
+  patient ID is still the correct thing to do, and I did it. But the honest number is that it moved
+  almost nothing here, and reporting it as a dramatic fix would be a lie.<br><br>
+  <b>2. Isotonic recalibration made calibration worse.</b> Fitted on half the hold-out patients, the
+  calibration slope went from 0.906 to <b>0.782</b>, Brier from 0.0942 to 0.0945, and AUC from 0.6491 to
+  0.6483. The model was already well calibrated; the recalibration had nothing to fix and cost a little.
+  It stayed in the repository as a negative result rather than being quietly deleted.
+</div>
+
+<div class="callout">
+  <b>Limitations.</b> The data is 1999–2008, so coding practice and care pathways have moved on — this is
+  a methods demonstration, not a deployable model. 2,423 encounters were removed where readmission was
+  impossible (deaths and hospice discharges), because leaving them in the denominator flatters the model.
+  Readmissions after 30 days fold into the negative class, since under 30 days is the CMS-penalised event.
+  And before anyone deployed this, the number that matters is not AUC — it is what the care team's
+  current process already catches, which this dataset cannot tell you.
+</div>
+
+<footer>
+  Built by <a href="https://adapapavandharma.github.io">Pavan Dharma Adapa</a> ·
+  <a href="https://github.com/adapapavandharma/readmission-risk">source, tests and full evaluation</a> ·
+  this page reads the same <code>outputs/evaluation.json</code> the pipeline writes.
+</footer>
+
+</div>
+
+<script>
+const LIFT=[
+ {k:5,flag:986,caught:298,recall:13.6,prec:30.2,lift:2.73,nns:3.3},
+ {k:10,flag:1972,caught:488,recall:22.3,prec:24.7,lift:2.23,nns:4.0},
+ {k:15,flag:2958,caught:670,recall:30.7,prec:22.7,lift:2.04,nns:4.4},
+ {k:20,flag:3944,caught:824,recall:37.7,prec:20.9,lift:1.89,nns:4.8},
+ {k:25,flag:4930,caught:980,recall:44.9,prec:19.9,lift:1.79,nns:5.0},
+ {k:30,flag:5916,caught:1119,recall:51.2,prec:18.9,lift:1.71,nns:5.3},
+ {k:40,flag:7888,caught:1333,recall:61.0,prec:16.9,lift:1.53,nns:5.9},
+ {k:50,flag:9860,caught:1532,recall:70.1,prec:15.5,lift:1.40,nns:6.4}
+];
+const MODELS=[
+ {name:"Gradient boosting",auc:0.6635,pr:0.2185,over:1.97,recall20:37.7,brier:0.0943,slope:0.995,mp:0.1129,ok:true},
+ {name:"Logistic regression",auc:0.6495,pr:0.1929,over:1.74,recall20:null,brier:0.22654,slope:0.844,mp:0.4632,ok:false},
+ {name:"Rule: prior inpatient count",auc:0.5963,pr:0.1606,over:1.45,recall20:null,brier:null,slope:null,mp:null,ok:null}
+];
+const OBS=0.1108;
+const LEAK=[{m:"Logistic regression",rand:0.6658,rsd:0.0061,grp:0.6650,gsd:0.0080,inf:0.0008},
+            {m:"Gradient boosting",rand:0.6790,rsd:0.0052,grp:0.6767,gsd:0.0068,inf:0.0023}];
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const f=n=>n.toLocaleString("en-US");
+
+function lift(){
+  document.querySelector("#lift tbody").innerHTML = LIFT.map(r=>
+    '<tr class="'+(r.k===20?'hl':'')+'"><td class="num">Top '+r.k+'%</td><td class="num">'+f(r.flag)+'</td>'+
+    '<td class="num">'+f(r.caught)+'</td><td class="num">'+r.recall.toFixed(1)+'%</td>'+
+    '<td class="num">'+r.prec.toFixed(1)+'%</td><td class="num">'+r.lift.toFixed(2)+'×</td>'+
+    '<td class="num">'+r.nns.toFixed(1)+'</td>'+
+    '<td><span class="barwrap"><span class="bar" style="width:'+r.recall.toFixed(1)+'%;background:'+
+    (r.k===20?css("--accent"):css("--muted"))+'"></span></span></td></tr>').join("");
+}
+
+function models(){
+  document.querySelector("#models tbody").innerHTML = MODELS.map(m=>{
+    let cal;
+    if(m.ok===null) cal='<span class="mid">not a probability model</span>';
+    else if(m.ok)   cal='<span class="pill ok">well calibrated</span><br><span class="mid">Brier '+m.brier.toFixed(4)+' · slope '+m.slope+' · mean pred '+(m.mp*100).toFixed(1)+'%</span>';
+    else            cal='<span class="pill no">badly calibrated</span><br><span class="mid">Brier '+m.brier.toFixed(4)+' · mean pred '+(m.mp*100).toFixed(1)+'% vs '+(OBS*100).toFixed(1)+'% observed</span>';
+    return '<tr><td><b>'+m.name+'</b></td><td class="num">'+m.auc.toFixed(4)+'</td>'+
+      '<td class="num">'+m.pr.toFixed(4)+'</td><td class="num">'+m.over.toFixed(2)+'×</td>'+
+      '<td class="num">'+(m.recall20?m.recall20.toFixed(1)+'%':'—')+'</td><td>'+cal+'</td></tr>';
+  }).join("");
+}
+
+function calib(){
+  const rows=[["Gradient boosting",0.1129,0.0943,0.995,true],["Logistic regression",0.4632,0.22654,0.844,false]];
+  document.getElementById("calib").innerHTML =
+    rows.map(([n,mp,br,sl,ok])=>{
+      const w=Math.min(mp/0.5*100,100), obs=OBS/0.5*100;
+      return '<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px">'+
+        '<b>'+n+'</b><span class="mid">Brier '+br.toFixed(4)+' · slope '+sl+'</span></div>'+
+        '<div style="position:relative;height:22px"><span class="barwrap" style="position:absolute;inset:0"></span>'+
+        '<span class="bar" style="position:absolute;left:0;top:6px;height:10px;width:'+w.toFixed(1)+'%;background:'+(ok?css("--good"):css("--bad"))+'"></span>'+
+        '<span style="position:absolute;left:'+obs.toFixed(1)+'%;top:0;bottom:0;width:2px;background:'+css("--ink")+'"></span>'+
+        '</div><div class="mid" style="margin-top:3px">mean predicted '+(mp*100).toFixed(1)+'%'+(ok?'':' — four times the truth')+'</div></div>';
+    }).join("") +
+    '<p style="font-size:12.5px;color:var(--muted);margin:10px 0 0">The vertical line is the observed readmission rate, '+(OBS*100).toFixed(1)+'%. A calibrated model\'s bar should land on it.</p>';
+}
+
+function leak(){
+  document.getElementById("leak").innerHTML =
+    '<table><thead><tr><th>Model</th><th class="num">Random split</th><th class="num">Patient-grouped</th><th class="num">Inflation</th></tr></thead><tbody>'+
+    LEAK.map(l=>'<tr><td>'+l.m+'</td><td class="num">'+l.rand.toFixed(4)+'<br><span class="mid">±'+l.rsd.toFixed(4)+'</span></td>'+
+      '<td class="num">'+l.grp.toFixed(4)+'<br><span class="mid">±'+l.gsd.toFixed(4)+'</span></td>'+
+      '<td class="num"><b>'+l.inf.toFixed(4)+'</b></td></tr>').join("")+
+    '</tbody></table>'+
+    '<p style="font-size:12.5px;color:var(--muted);margin:11px 0 0">Both inflations are smaller than the fold-to-fold standard deviation, so the leakage effect here is not distinguishable from noise. Grouping is still correct practice — it just was not the dramatic fix it is often assumed to be.</p>';
+}
+
+function render(){lift();models();calib();leak();}
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>

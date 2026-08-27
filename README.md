@@ -2,6 +2,8 @@
 
 [![tests](https://github.com/adapapavandharma/readmission-risk/actions/workflows/ci.yml/badge.svg)](https://github.com/adapapavandharma/readmission-risk/actions/workflows/ci.yml) [![python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/) [![licence MIT](https://img.shields.io/badge/licence-MIT-green.svg)](LICENSE)
 
+**[→ Open the interactive evaluation](https://adapapavandharma.github.io/readmission-risk/)** — the lift table, three models against a rule baseline, calibration, and the two negative results. No install.
+
 A 30-day hospital readmission model built on **99,343 real inpatient encounters** from the
 UCI *Diabetes 130-US Hospitals* dataset (130 hospitals, 1999–2008), with a genuine
 readmission label rather than a simulated one.
